@@ -15,7 +15,7 @@ app.use(cors());
 
 mongoose.connect(process.env.AddressDB, (err) => {
     if (err) {
-        console.log(`${colors.red('ERROR')}: DB off`);
+        console.log(`${colors.red('ERROR')}: DB ${colors.red('OFF')}`);
     } else {
         console.log(`DB ${colors.green('ON')}`);
     }
