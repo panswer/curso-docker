@@ -13,15 +13,28 @@ const app = express();
 // intercambio de recursos de origen cruzado o CORS
 app.use(cors());
 
-mongoose.connect(process.env.AddressDB, (err) => {
+mongoose.connect(process.env.AddressDB, err => {
     if (err) {
-        console.log(`${colors.red('ERROR')}: DB ${colors.red('OFF')}`);
+        console.log(`${colors.red('ERROR')}: Data Base ${colors.red('DISCONNECTED')}`);
     } else {
-        console.log(`DB ${colors.green('ON')}`);
+        console.log(`Data Base ${colors.green('CONNECTED')}`);
     }
 });
 
 app.get('/', (req, res) => {
+    mongoose.connect.on('error', err => {
+        if (err) {
+            console.log(`DataBase: ${colors.red('DISCONNECTED')}`);
+            return res.status(500).json({
+                ok: false,
+                err: {
+                    message: 'Data Base DISCONNECTED'
+                }
+            });
+        } else {
+            console.log(`DataBase: ${colors.green('CONNECTED')}`);
+        }
+    });
     Number.find((err, numbers) => {
         if (err) {
             return res.status(500).json({
@@ -64,6 +77,8 @@ app.get('/', (req, res) => {
         }
     });
 });
+
+mongoose.disconnect().then().catch()
 
 app.listen(process.env.PORT, () => {
     console.log(`Server ${colors.green('ON')} port: ${colors.green(process.env.PORT)}`);
