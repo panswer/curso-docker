@@ -13,6 +13,9 @@ const app = express();
 // intercambio de recursos de origen cruzado o CORS
 app.use(cors());
 
+app.use(express.json());
+app.use(express.urlencoded(app));
+
 mongoose.connect(process.env.AddressDB, err => {
     if (err) {
         console.log(`${colors.red('ERROR')}: Data Base ${colors.red('DISCONNECTED')}`);
@@ -22,63 +25,33 @@ mongoose.connect(process.env.AddressDB, err => {
 });
 
 app.get('/', (req, res) => {
-    mongoose.connect.on('error', err => {
-        if (err) {
-            console.log(`DataBase: ${colors.red('DISCONNECTED')}`);
-            return res.status(500).json({
-                ok: false,
-                err: {
-                    message: 'Data Base DISCONNECTED'
-                }
-            });
-        } else {
-            console.log(`DataBase: ${colors.green('CONNECTED')}`);
-        }
-    });
     Number.find((err, numbers) => {
         if (err) {
             return res.status(500).json({
-                ok: false,
                 err
             });
         }
-        if (numbers.length === 0) {
-            console.log(numbers);
-            let number = new Number({
-                num: 1
-            });
-            number.save((err, numberS) => {
-                if (err) {
-                    return res.status(400).json({
-                        ok: false,
-                        err
-                    });
-                }
-                res.json({
-                    ok: true,
-                    number: numberS.num
-                });
-            });
-        } else {
-            let number = numbers[0];
-            number.num++;
-            Number.findByIdAndUpdate(number._id, number, (err, numberU) => {
-                if (err) {
-                    return res.status(400).json({
-                        ok: false,
-                        err
-                    });
-                }
-                res.json({
-                    ok: true,
-                    number: numberU.num
-                });
-            });
-        }
+        res.json({
+            numbers
+        });
     });
 });
-
-mongoose.disconnect().then().catch()
+app.post('/', (req, res) => {
+    let number = new Number({
+        num: req.body.num
+    });
+    number.save((err, numberG) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false
+            });
+        }
+        res.json({
+            ok: true,
+            numberG
+        });
+    });
+});
 
 app.listen(process.env.PORT, () => {
     console.log(`Server ${colors.green('ON')} port: ${colors.green(process.env.PORT)}`);
